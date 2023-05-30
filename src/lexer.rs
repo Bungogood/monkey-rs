@@ -28,6 +28,11 @@ pub enum Token {
     // keywords
     FUNCTION,
     LET,
+    TRUE,
+    FALSE,
+    IF,
+    ELSE,
+    RETURN,
 }
 
 pub struct Lexer {
@@ -73,6 +78,11 @@ impl Lexer {
                 match ident.as_str() {
                     "fn" => Token::FUNCTION,
                     "let" => Token::LET,
+                    "true" => Token::TRUE,
+                    "false" => Token::FALSE,
+                    "if" => Token::IF,
+                    "else" => Token::ELSE,
+                    "return" => Token::RETURN,
                     _ => Token::IDENT(ident),
                 }
             }
@@ -166,6 +176,13 @@ mod test {
             let add = fn(x, y) {
                 x + y;
             };
+            let max = fn(x, y) {
+                if (x > y) {
+                    return x;
+                } else {
+                    return y;
+                }
+            };
             let result = add(five, ten);
         ";
         let mut lexer = Lexer::new(input.into());
@@ -195,6 +212,35 @@ mod test {
             Token::PLUS,
             Token::IDENT(String::from("y")),
             Token::SEMICOLON,
+            Token::RBRACE,
+            Token::SEMICOLON,
+            Token::LET,
+            Token::IDENT(String::from("max")),
+            Token::ASSIGN,
+            Token::FUNCTION,
+            Token::LPAREN,
+            Token::IDENT(String::from("x")),
+            Token::COMMA,
+            Token::IDENT(String::from("y")),
+            Token::RPAREN,
+            Token::LBRACE,
+            Token::IF,
+            Token::LPAREN,
+            Token::IDENT(String::from("x")),
+            Token::GT,
+            Token::IDENT(String::from("y")),
+            Token::RPAREN,
+            Token::LBRACE,
+            Token::RETURN,
+            Token::IDENT(String::from("x")),
+            Token::SEMICOLON,
+            Token::RBRACE,
+            Token::ELSE,
+            Token::LBRACE,
+            Token::RETURN,
+            Token::IDENT(String::from("y")),
+            Token::SEMICOLON,
+            Token::RBRACE,
             Token::RBRACE,
             Token::SEMICOLON,
             Token::LET,
