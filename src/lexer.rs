@@ -10,14 +10,20 @@ pub enum Token {
     // operators
     ASSIGN,
     PLUS,
+    MINUS,
+    GT,
+    LT,
+    BANG,
+    ASTERISK,
+    SLASH,
 
     // delimiters
-    COMMA,
-    SEMICOLON,
     LPAREN,
     RPAREN,
     LBRACE,
     RBRACE,
+    COMMA,
+    SEMICOLON,
 
     // keywords
     FUNCTION,
@@ -48,13 +54,19 @@ impl Lexer {
 
         let tok = match self.ch {
             '=' => Token::ASSIGN,
-            ';' => Token::SEMICOLON,
+            '+' => Token::PLUS,
+            '-' => Token::MINUS,
+            '>' => Token::GT,
+            '<' => Token::LT,
+            '!' => Token::BANG,
+            '*' => Token::ASTERISK,
+            '/' => Token::SLASH,
             '(' => Token::LPAREN,
             ')' => Token::RPAREN,
-            ',' => Token::COMMA,
-            '+' => Token::PLUS,
             '{' => Token::LBRACE,
             '}' => Token::RBRACE,
+            ',' => Token::COMMA,
+            ';' => Token::SEMICOLON,
             '0'..='9' => Token::INT(self.read_int()),
             'a'..='z' | 'A'..='Z' | '_' => {
                 let ident = self.read_ident();
@@ -119,12 +131,18 @@ mod test {
 
     #[test]
     fn char_next_token() {
-        let input = "=+(){},;";
+        let input = "=+-><!*/(){},;";
         let mut lexer = Lexer::new(input.into());
 
         let tokens = vec![
             Token::ASSIGN,
             Token::PLUS,
+            Token::MINUS,
+            Token::GT,
+            Token::LT,
+            Token::BANG,
+            Token::ASTERISK,
+            Token::SLASH,
             Token::LPAREN,
             Token::RPAREN,
             Token::LBRACE,
