@@ -1,9 +1,6 @@
 mod lexer;
-
-use lexer::Lexer;
+mod repl;
 
 fn main() {
-    let source = String::from("");
-    let mut lexer = Lexer::new(source);
-    println!("Hello, world!");
+    repl::start();
 }
