@@ -58,7 +58,7 @@ impl Lexer {
         lexer
     }
 
-    pub fn next_token(&mut self) -> Token {
+    fn next_token(&mut self) -> Token {
         self.skip_whitespace();
 
         let tok = match self.ch {
@@ -150,14 +150,27 @@ impl Lexer {
     }
 }
 
+impl Iterator for Lexer {
+    type Item = Token;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        match self.next_token() {
+            Token::EOF => None,
+            token => Some(token),
+        }
+    }
+}
+
 #[cfg(test)]
 mod test {
+    use std::iter::zip;
+
     use super::{Lexer, Token};
 
     #[test]
     fn single_next_token() {
-        let input = "=+-><!*/(){},;";
-        let mut lexer = Lexer::new(input.into());
+        let input = String::from("=+-><!*/(){},;");
+        let lexer = Lexer::new(input);
 
         let tokens = vec![
             Token::ASSIGN,
@@ -176,17 +189,16 @@ mod test {
             Token::SEMICOLON,
         ];
 
-        for expected in tokens {
-            let token = lexer.next_token();
-            println!("expected: {:?} recieved: {:?}", expected, token);
-            assert_eq!(expected, token);
+        for (expected, actual) in zip(tokens, lexer) {
+            println!("expected: {:?} recieved: {:?}", expected, actual);
+            assert_eq!(expected, actual);
         }
     }
 
     #[test]
     fn double_next_token() {
-        let input = "== != >= <=";
-        let mut lexer = Lexer::new(input.into());
+        let input = String::from("== != >= <=");
+        let lexer = Lexer::new(input.into());
 
         let tokens = vec![
             Token::EQ,
@@ -195,16 +207,15 @@ mod test {
             Token::LEQ,
         ];
 
-        for expected in tokens {
-            let token = lexer.next_token();
-            println!("expected: {:?} recieved: {:?}", expected, token);
-            assert_eq!(expected, token);
+        for (expected, actual) in zip(tokens, lexer) {
+            println!("expected: {:?} recieved: {:?}", expected, actual);
+            assert_eq!(expected, actual);
         }
     }
 
     #[test]
     fn simple_next_token() {
-        let input = "
+        let input = String::from("
             let five = 5;
             let ten = 10;
             let add = fn(x, y) {
@@ -218,8 +229,8 @@ mod test {
                 }
             };
             let result = add(five, ten);
-        ";
-        let mut lexer = Lexer::new(input.into());
+        ");
+        let lexer = Lexer::new(input.into());
 
         let tokens = vec![
             Token::LET,
@@ -290,10 +301,9 @@ mod test {
             Token::EOF,
         ];
 
-        for expected in tokens {
-            let token = lexer.next_token();
-            println!("expected: {:?} recieved: {:?}", expected, token);
-            assert_eq!(expected, token);
+        for (expected, actual) in zip(tokens, lexer) {
+            println!("expected: {:?} recieved: {:?}", expected, actual);
+            assert_eq!(expected, actual);
         }
     }
 }
