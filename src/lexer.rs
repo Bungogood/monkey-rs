@@ -16,6 +16,10 @@ pub enum Token {
     BANG,
     ASTERISK,
     SLASH,
+    EQ,
+    NEQ,
+    GEQ,
+    LEQ,
 
     // delimiters
     LPAREN,
@@ -58,12 +62,12 @@ impl Lexer {
         self.skip_whitespace();
 
         let tok = match self.ch {
-            '=' => Token::ASSIGN,
+            '=' => self.double_token('=', Token::ASSIGN, Token::EQ),
             '+' => Token::PLUS,
             '-' => Token::MINUS,
-            '>' => Token::GT,
-            '<' => Token::LT,
-            '!' => Token::BANG,
+            '>' => self.double_token('=', Token::GT, Token::GEQ),
+            '<' => self.double_token('=', Token::LT, Token::LEQ),
+            '!' => self.double_token('=', Token::BANG, Token::NEQ),
             '*' => Token::ASTERISK,
             '/' => Token::SLASH,
             '(' => Token::LPAREN,
@@ -89,9 +93,18 @@ impl Lexer {
             '\0' => Token::EOF,
             _ => Token::ILLEGAL,
         };
-        
+
         self.read_char();
         tok
+    }
+
+    fn double_token(&mut self, second: char, single: Token, double: Token) -> Token {
+        if second == self.peak_char() {
+            self.read_char();
+            double
+        } else {
+            single
+        }
     }
 
     fn skip_whitespace(&mut self) {
@@ -102,9 +115,9 @@ impl Lexer {
 
     fn peak_char(&self) -> char {
         if self.read_position >= self.input.len() {
-            return '\0';
+            '\0'
         } else {
-            return self.input.chars().nth(self.read_position).unwrap();
+            self.input.chars().nth(self.read_position).unwrap()
         }
     }
 
@@ -123,7 +136,7 @@ impl Lexer {
         while let 'a'..='z' | 'A'..='Z' | '_' = self.peak_char() {
             self.read_char();
         }
-        return String::from(&self.input[start..=self.position]);
+        String::from(&self.input[start..=self.position])
     }
 
     fn read_int(&mut self) -> i32 {
@@ -131,7 +144,9 @@ impl Lexer {
         while let '0'..='9' = self.peak_char() {
             self.read_char();
         }
-        return String::from(&self.input[start..=self.position]).parse().unwrap();
+        String::from(&self.input[start..=self.position])
+            .parse()
+            .unwrap()
     }
 }
 
@@ -140,7 +155,7 @@ mod test {
     use super::{Lexer, Token};
 
     #[test]
-    fn char_next_token() {
+    fn single_next_token() {
         let input = "=+-><!*/(){},;";
         let mut lexer = Lexer::new(input.into());
 
@@ -159,6 +174,25 @@ mod test {
             Token::RBRACE,
             Token::COMMA,
             Token::SEMICOLON,
+        ];
+
+        for expected in tokens {
+            let token = lexer.next_token();
+            println!("expected: {:?} recieved: {:?}", expected, token);
+            assert_eq!(expected, token);
+        }
+    }
+
+    #[test]
+    fn double_next_token() {
+        let input = "== != >= <=";
+        let mut lexer = Lexer::new(input.into());
+
+        let tokens = vec![
+            Token::EQ,
+            Token::NEQ,
+            Token::GEQ,
+            Token::LEQ,
         ];
 
         for expected in tokens {
