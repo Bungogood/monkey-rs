@@ -1,4 +1,4 @@
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Token {
     Illegal,
     Eof,
@@ -199,13 +199,7 @@ mod test {
     fn double_next_token() {
         let input = String::from("== != >= <=");
         let lexer = Lexer::new(input.into());
-
-        let tokens = vec![
-            Token::Eq,
-            Token::Neq,
-            Token::Geq,
-            Token::Leq,
-        ];
+        let tokens = vec![Token::Eq, Token::Neq, Token::Geq, Token::Leq];
 
         for (expected, actual) in zip(tokens, lexer) {
             println!("expected: {:?} recieved: {:?}", expected, actual);
@@ -215,7 +209,8 @@ mod test {
 
     #[test]
     fn simple_next_token() {
-        let input = String::from("
+        let input = String::from(
+            "
             let five = 5;
             let ten = 10;
             let add = fn(x, y) {
@@ -229,7 +224,8 @@ mod test {
                 }
             };
             let result = add(five, ten);
-        ");
+        ",
+        );
         let lexer = Lexer::new(input.into());
 
         let tokens = vec![

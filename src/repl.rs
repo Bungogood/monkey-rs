@@ -1,5 +1,5 @@
+use crate::lexer::Lexer;
 use std::io::{self, Write};
-use crate::lexer::{Lexer};
 
 const PROMPT: &str = ">> ";
 
@@ -23,8 +23,5 @@ pub fn start() {
             print!("{:?} ", token)
         }
         println!();
-
-        // let result = eval(trimmed_input);
-        println!("{}", trimmed_input);
     }
 }
